@@ -87,4 +87,34 @@ print(features_selected.describe())
 # save fully cleaned dataset to new CSV file
 features_selected.to_csv(r"C:\Users\Owner\Desktop\UH\Spring 2024\COSC 4337\Project\Code\MyCode\Output\output.csv", index=False)
 
+# Create scatter plots
+plt.figure(figsize=(15, 10))
+for i, column in enumerate(numeric_columns):
+    plt.subplot(4, 4, i + 1)
+    sns.scatterplot(data=df, x=column, y='classification', hue='classification')
+    plt.title(f'Scatter Plot of {column} vs Classification')
 
+plt.tight_layout()
+plt.show()
+
+# Create a separate boxplot for 'wc' column
+plt.figure(figsize=(15, 10))
+
+# Boxplot for 'wc' column
+plt.subplot(1, 2, 1)
+sns.boxplot(data=df['wc'])
+plt.title('Boxplot of White Blood Cell Count (wc)')
+
+# Boxplot for other numeric columns
+plt.subplot(1, 2, 2)
+sns.boxplot(data=df.drop(columns='wc'))
+plt.title('Boxplot of Other Numeric Columns')
+
+plt.tight_layout()
+plt.show()
+
+# Display summary statistics for the dataset after Winsorization
+selected_features = features.columns[fit.support_]
+features_selected = features[selected_features]
+features_selected['classification'] = target
+print(features_selected.describe())
