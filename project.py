@@ -1,5 +1,6 @@
 import pandas as pd
 import matplotlib.pyplot as plt
+import seaborn as sns
 from sklearn.feature_selection import RFE
 from sklearn.linear_model import LogisticRegression
 from sklearn.preprocessing import LabelEncoder
@@ -86,8 +87,6 @@ print(features_selected.describe())
 
 # save fully cleaned dataset to new CSV file
 features_selected.to_csv(r"C:\Users\Owner\Desktop\UH\Spring 2024\COSC 4337\Project\Code\MyCode\Output\output.csv", index=False)
-
-import seaborn as sns
 
 # Define Winsorization function
 def winsorize_column(data, column, lower_percentile=0.05, upper_percentile=0.95):
