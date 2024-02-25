@@ -1,5 +1,4 @@
-# 4337-Project-Team-5
-Repo for Team 5 project for COSC 4337
+# Repo for Team 5 project for COSC 4337
 
 Method 1: Python IDE (PyCharm, VSC, etc.):
 
