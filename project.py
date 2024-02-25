@@ -1,9 +1,9 @@
 import pandas as pd
 import matplotlib.pyplot as plt
-import seaborn as sns
 from sklearn.feature_selection import RFE
 from sklearn.linear_model import LogisticRegression
 from sklearn.preprocessing import LabelEncoder
+import seaborn as sns
 
 # load dataset
 df = pd.read_csv("kidney_disease.csv")
@@ -86,7 +86,7 @@ features_selected.loc[:, 'classification'] = target
 print(features_selected.describe())
 
 # save fully cleaned dataset to new CSV file
-features_selected.to_csv(r"C:\Users\Owner\Desktop\UH\Spring 2024\COSC 4337\Project\Code\MyCode\Output\output.csv", index=False)
+features_selected.to_csv(r"output.csv", index=False)
 
 # Define Winsorization function
 def winsorize_column(data, column, lower_percentile=0.05, upper_percentile=0.95):
@@ -103,34 +103,30 @@ non_numeric_columns = df.select_dtypes(include=['object']).columns
 for column in non_numeric_columns:
     df[column] = encoder.fit_transform(df[column])
 
+# Define Winsorization function
+def winsorize_column(data, column, lower_percentile=0.05, upper_percentile=0.95):
+    lower_limit = data[column].quantile(lower_percentile)
+    upper_limit = data[column].quantile(upper_percentile)
+    data[column] = data[column].clip(lower=lower_limit, upper=upper_limit)
+    return data
+# Instantiate the encoder
+encoder = LabelEncoder()
+
+# Apply label encoding to non-numeric columns
+non_numeric_columns = df.select_dtypes(include=['object']).columns
+for column in non_numeric_columns:
+    df[column] = encoder.fit_transform(df[column])
+
 # Perform Winsorization
 numeric_columns = ['age', 'bp', 'sg', 'al', 'su', 'bgr', 'bu', 'sc', 'sod', 'pot', 'hemo', 'pcv', 'wc', 'rc']
 for column in numeric_columns:
     df = winsorize_column(df, column)
-
-# Perform RFE
+# perform RFE
 features = df.drop(columns='classification')
 target = df['classification']
 model = LogisticRegression(solver='saga', max_iter=7000)
 rfe = RFE(model)
 fit = rfe.fit(features, target)
-
-# Create a separate boxplot for 'wc' column
-plt.figure(figsize=(15, 10))
-
-# Boxplot for 'wc' column
-plt.subplot(1, 2, 1)
-sns.boxplot(data=df['wc'])
-plt.title('Boxplot of White Blood Cell Count (wc)')
-
-# Boxplot for other numeric columns
-plt.subplot(1, 2, 2)
-sns.boxplot(data=df.drop(columns='wc'))
-plt.title('Boxplot of Other Numeric Columns')
-
-plt.tight_layout()
-plt.show()
-
 # Display summary statistics for the dataset after Winsorization
 selected_features = features.columns[fit.support_]
 features_selected = features[selected_features]
@@ -138,35 +134,23 @@ features_selected['classification'] = target
 print(features_selected.describe())
 
 
-
-# Create scatter plots
+# Adjust the x and y-axis limits in boxplots
 plt.figure(figsize=(15, 10))
-for i, column in enumerate(numeric_columns):
-    plt.subplot(4, 4, i + 1)
-    sns.scatterplot(data=df, x=column, y='classification', hue='classification')
-    plt.title(f'Scatter Plot of {column} vs Classification')
-
-plt.tight_layout()
+sns.boxplot(data=df[numeric_columns])
+plt.title('Boxplot of Numeric Columns Before Winsorization')
+plt.xticks(rotation=45)
+plt.ylim(0, 160)  # Adjust the y-axis limit
+plt.yticks(range(0, 161, 15))  # Set y-axis tick intervals to 15
 plt.show()
 
-# Create a separate boxplot for 'wc' column
+# Visualize outliers after Winsorization with adjusted axis limits
 plt.figure(figsize=(15, 10))
-
-# Boxplot for 'wc' column
-plt.subplot(1, 2, 1)
-sns.boxplot(data=df['wc'])
-plt.title('Boxplot of White Blood Cell Count (wc)')
-
-# Boxplot for other numeric columns
-plt.subplot(1, 2, 2)
-sns.boxplot(data=df.drop(columns='wc'))
-plt.title('Boxplot of Other Numeric Columns')
-
-plt.tight_layout()
+sns.boxplot(data=df[numeric_columns])
+plt.title('Boxplot of Numeric Columns After Winsorization')
+plt.xticks(rotation=45)
+plt.ylim(0, 160)  # Adjust the y-axis limit
+plt.yticks(range(0, 161, 15))  # Set y-axis tick intervals to 15
 plt.show()
 
 # Display summary statistics for the dataset after Winsorization
-selected_features = features.columns[fit.support_]
-features_selected = features[selected_features]
-features_selected['classification'] = target
 print(features_selected.describe())
